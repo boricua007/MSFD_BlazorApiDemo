@@ -6,7 +6,16 @@
 
 <div class="fetch-data-container">
     <h1>User Data</h1>
-    <p class="subtitle">Fetch and display user information from external API</p>
+    <div class="subtitle">
+        <p class="mb-2">This page demonstrates:</p>
+        <ul class="feature-list">
+            <li>Consuming external REST APIs using <strong>HttpClient</strong></li>
+            <li>Fetching sample user data from JSONPlaceholder API</li>
+            <li>Asynchronous data loading with loading states</li>
+            <li>Error handling and user feedback</li>
+            <li>Responsive table display with Bootstrap styling</li>
+        </ul>
+    </div>
 
     <div class="alert alert-primary shadow-sm mb-4">
         <h5 class="alert-heading"><i class="bi bi-cloud-arrow-down me-2"></i>HTTP GET Request Demo</h5>
@@ -134,6 +143,30 @@
     .subtitle {
         color: #586069;
         margin-bottom: 24px;
+    }
+
+    .subtitle p {
+        margin-bottom: 0.5rem;
+    }
+
+    .feature-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+
+    .feature-list li {
+        padding-left: 1.5rem;
+        position: relative;
+        margin-bottom: 0.5rem;
+    }
+
+    .feature-list li::before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #28a745;
+        font-weight: bold;
     }
 
     .table {
