@@ -67,6 +67,14 @@ else
                     .UseAdvancedExtensions()
                     .Build();
                 htmlContent = Markdown.ToHtml(markdownContent, pipeline);
+                
+                // Add target="_blank" to all external links
+                htmlContent = System.Text.RegularExpressions.Regex.Replace(
+                    htmlContent,
+                    @"<a\s+href=""(https?://[^""]+)""([^>]*)>",
+                    @"<a href=""$1"" target=""_blank""$2>",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase
+                );
             }
             else
             {
