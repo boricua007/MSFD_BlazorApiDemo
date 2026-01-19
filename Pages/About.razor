@@ -1,0 +1,166 @@
+@page "/about"
+@using Markdig
+@using System.Text.Json.Serialization
+@inject IHttpClientFactory HttpClientFactory
+
+<PageTitle>About</PageTitle>
+
+<div class="about-header">
+    @if (!string.IsNullOrEmpty(avatarUrl))
+    {
+        <img src="@avatarUrl" alt="Profile Avatar" class="avatar" />
+    }
+    <div class="title-block">
+        <h1>About Me</h1>
+        <h5>
+            GitHub Repo:
+            <a href="https://github.com/boricua007" target="_blank">
+                Daisy Viruet-Allen | Boricua007
+            </a>
+        </h5>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+else if (htmlContent == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="markdown-content">
+        @((MarkupString)htmlContent!)
+    </div>
+}
+
+@code {
+    private string? htmlContent;
+    private string? errorMessage;
+    private string? avatarUrl;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Use the named HttpClient for external requests
+            var httpClient = HttpClientFactory.CreateClient("ExternalAPI");
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "MSFD-Blazor-Demo");
+            
+            // Fetch user info for avatar
+            var userResponse = await httpClient.GetFromJsonAsync<GitHubUserResponse>("https://api.github.com/users/boricua007");
+            avatarUrl = userResponse?.AvatarUrl;
+            
+            // Fetch the README.md from GitHub API
+            var response = await httpClient.GetFromJsonAsync<GitHubFileResponse>("https://api.github.com/repos/boricua007/boricua007/contents/README.md");
+            
+            if (response?.Content != null)
+            {
+                // Decode the base64 content
+                var bytes = Convert.FromBase64String(response.Content);
+                var markdownContent = System.Text.Encoding.UTF8.GetString(bytes);
+                
+                // Convert markdown to HTML
+                var pipeline = new MarkdownPipelineBuilder()
+                    .UseAdvancedExtensions()
+                    .Build();
+                htmlContent = Markdown.ToHtml(markdownContent, pipeline);
+            }
+            else
+            {
+                errorMessage = "Could not retrieve README content";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading content: {ex.Message}";
+        }
+    }
+    
+    private class GitHubUserResponse
+    {
+        [JsonPropertyName("avatar_url")]
+        public string? AvatarUrl { get; set; }
+    }
+    
+    private class GitHubFileResponse
+    {
+        [JsonPropertyName("content")]
+        public string? Content { get; set; }
+        
+        [JsonPropertyName("encoding")]
+        public string? Encoding { get; set; }
+    }
+}
+
+<style>
+    .about-header {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 2px solid #eaecef;
+    }
+
+    .avatar {
+        width: 128px;
+        height: 128px;
+        border-radius: 50%;
+        border: 3px solid #0366d6;
+        object-fit: cover;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .title-block h1 {
+        margin: 0 0 8px 0;
+        font-size: 2rem;
+        font-weight: 600;
+        color: #24292e;
+    }
+
+    .title-block h6 {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #586069;
+        font-weight: normal;
+    }
+
+    .title-block a {
+        color: #0366d6;
+        text-decoration: none;
+    }
+
+    .title-block a:hover {
+        text-decoration: underline;
+    }
+
+    .markdown-content {
+        line-height: 1.6;
+        color: #24292e;
+    }
+
+    .markdown-content h1,
+    .markdown-content h2,
+    .markdown-content h3 {
+        margin-top: 24px;
+        margin-bottom: 16px;
+        font-weight: 600;
+        line-height: 1.25;
+    }
+
+    .markdown-content p {
+        margin-bottom: 16px;
+    }
+
+    .markdown-content a {
+        color: #0366d6;
+        text-decoration: none;
+    }
+
+    .markdown-content a:hover {
+        text-decoration: underline;
+    }
+</style>

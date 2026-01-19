@@ -1,0 +1,170 @@
+@page "/readme"
+@using Markdig
+@inject HttpClient Http
+
+<PageTitle>README</PageTitle>
+
+<div class="readme-container">
+    @if (htmlContent == null && errorMessage == null)
+    {
+        <div class="text-center my-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2">Loading README...</p>
+        </div>
+    }
+    else if (errorMessage != null)
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    else
+    {
+        <div class="readme-content">
+            @((MarkupString)htmlContent!)
+        </div>
+    }
+</div>
+
+@code {
+    private string? htmlContent;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Fetch the README.md from the app's wwwroot
+            var markdownContent = await Http.GetStringAsync("README.md");
+            
+            // Convert markdown to HTML
+            var pipeline = new MarkdownPipelineBuilder()
+                .UseAdvancedExtensions()
+                .Build();
+            htmlContent = Markdown.ToHtml(markdownContent, pipeline);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading README: {ex.Message}";
+        }
+    }
+}
+
+<style>
+    .readme-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .readme-content {
+        line-height: 1.6;
+        color: #24292e;
+    }
+
+    .readme-content h1 {
+        border-bottom: 2px solid #eaecef;
+        padding-bottom: 0.3em;
+        margin-top: 24px;
+        margin-bottom: 16px;
+        font-weight: 600;
+        font-size: 2em;
+    }
+
+    .readme-content h2 {
+        border-bottom: 1px solid #eaecef;
+        padding-bottom: 0.3em;
+        margin-top: 24px;
+        margin-bottom: 16px;
+        font-weight: 600;
+        font-size: 1.5em;
+    }
+
+    .readme-content h3 {
+        margin-top: 24px;
+        margin-bottom: 16px;
+        font-weight: 600;
+        font-size: 1.25em;
+    }
+
+    .readme-content p {
+        margin-bottom: 16px;
+    }
+
+    .readme-content ul, .readme-content ol {
+        padding-left: 2em;
+        margin-bottom: 16px;
+    }
+
+    .readme-content li {
+        margin-bottom: 0.25em;
+    }
+
+    .readme-content code {
+        padding: 0.2em 0.4em;
+        margin: 0;
+        font-size: 85%;
+        background-color: rgba(27, 31, 35, 0.05);
+        border-radius: 3px;
+    }
+
+    .readme-content pre {
+        padding: 16px;
+        overflow: auto;
+        font-size: 85%;
+        line-height: 1.45;
+        background-color: #f6f8fa;
+        border-radius: 6px;
+        margin-bottom: 16px;
+    }
+
+    .readme-content pre code {
+        background-color: transparent;
+        padding: 0;
+    }
+
+    .readme-content table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 16px;
+    }
+
+    .readme-content table th,
+    .readme-content table td {
+        padding: 6px 13px;
+        border: 1px solid #dfe2e5;
+    }
+
+    .readme-content table th {
+        font-weight: 600;
+        background-color: #f6f8fa;
+    }
+
+    .readme-content table tr:nth-child(even) {
+        background-color: #f6f8fa;
+    }
+
+    .readme-content a {
+        color: #0366d6;
+        text-decoration: none;
+    }
+
+    .readme-content a:hover {
+        text-decoration: underline;
+    }
+
+    .readme-content blockquote {
+        padding: 0 1em;
+        color: #6a737d;
+        border-left: 0.25em solid #dfe2e5;
+        margin-bottom: 16px;
+    }
+
+    .readme-content hr {
+        height: 0.25em;
+        padding: 0;
+        margin: 24px 0;
+        background-color: #e1e4e8;
+        border: 0;
+    }
+</style>
