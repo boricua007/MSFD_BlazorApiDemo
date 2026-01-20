@@ -95,8 +95,7 @@
         try
         {
             // Call a nonexistent endpoint to simulate an error
-            // users = await Http.GetFromJsonAsync<List<User>>("https://jsonplaceholder.typicode.com/invalidendpoint");
-
+            //users = await Http.GetFromJsonAsync<List<User>>("https://jsonplaceholder.typicode.com/invalidendpoint");
             users = await Http.GetFromJsonAsync<List<User>>("https://jsonplaceholder.typicode.com/users");
         }
         catch (Exception ex)
